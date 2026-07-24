@@ -30,12 +30,20 @@
     if (viewName === 'favoritos') renderFavorites();
     if (viewName === 'estatisticas') renderStats();
     if (viewName === 'home') renderHomeStats();
-    if (viewName === 'search') document.getElementById('search-historico')?.focus();
+    if (viewName === 'search') {
+      renderGlobalSearch('');
+      // pequeno delay evita que o teclado dispute com a animação de troca de tela no iOS
+      setTimeout(() => document.getElementById('search-global')?.focus(), 150);
+    }
   }
 
   document.querySelectorAll('[data-nav]').forEach(el => {
     el.addEventListener('click', () => goTo(el.dataset.nav));
   });
+
+  // A lupa do topbar antes não tinha nenhuma ação ligada a ela — agora
+  // abre a tela de Pesquisa (busca combinada em histórico + favoritos).
+  document.getElementById('btn-search').addEventListener('click', () => goTo('search'));
 
   // ---------------- Toast ----------------
   let toastTimer = null;
@@ -361,6 +369,57 @@
   }
 
   document.getElementById('search-favoritos').addEventListener('input', (e) => renderFavorites(e.target.value));
+
+  // ---------------- Pesquisa global (histórico + favoritos) ----------------
+  function renderGlobalSearch(filter = '') {
+    const container = document.getElementById('search-results');
+    const term = filter.trim().toLowerCase();
+
+    if (!term) {
+      container.innerHTML = emptyState('🔎', 'Pesquise por placa ou CPF', 'Os resultados do histórico e dos favoritos aparecem aqui, em tempo real.');
+      return;
+    }
+
+    const fromHistory = AfauStorage.getHistory()
+      .filter(h => h.plate.toLowerCase().includes(term) || h.cpf.includes(term))
+      .map(h => ({ ...h, origin: 'historico' }));
+    const fromFavorites = AfauStorage.getFavorites()
+      .filter(f => f.plate.toLowerCase().includes(term) || f.cpf.includes(term))
+      .map(f => ({ ...f, origin: 'favorito' }));
+
+    const combined = [...fromHistory, ...fromFavorites]
+      .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+    if (combined.length === 0) {
+      container.innerHTML = emptyState('🚫', 'Nada encontrado', 'Nenhuma consulta no histórico ou nos favoritos bate com esse termo.');
+      return;
+    }
+
+    container.innerHTML = combined.map(item => `
+      <div class="list-item">
+        <div class="list-item__badge">${item.origin === 'favorito' ? '⭐' : badgeIcon(item.source)}</div>
+        <div class="list-item__main">
+          <div class="list-item__plate">${item.plate}</div>
+          <div class="list-item__meta">${AfauUtils.formatCpf(item.cpf)} · ${item.origin === 'favorito' ? 'Favorito' : 'Histórico'} · ${formatDateTime(item.timestamp)}</div>
+        </div>
+        <div class="list-item__actions">
+          <button class="icon-btn" data-reopen-search="${item.id}" data-origin="${item.origin}" aria-label="Abrir">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+        </div>
+      </div>
+    `).join('');
+
+    container.querySelectorAll('[data-reopen-search]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const source = btn.dataset.origin === 'favorito' ? AfauStorage.getFavorites() : AfauStorage.getHistory();
+        const entry = source.find(item => item.id === btn.dataset.reopenSearch);
+        if (entry) showResult(entry.url, entry.source || 'manual');
+      });
+    });
+  }
+
+  document.getElementById('search-global').addEventListener('input', (e) => renderGlobalSearch(e.target.value));
 
   function emptyState(icon, title, desc) {
     return `<div class="empty-state">

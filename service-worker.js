@@ -6,7 +6,7 @@
  * este Service Worker nunca intercepta ou armazena nada desse domínio.
  */
 
-const CACHE_VERSION = 'afau-digital-v1';
+const CACHE_VERSION = 'afau-digital-v2';
 const APP_SHELL = [
   './',
   './index.html',

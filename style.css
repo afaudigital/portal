@@ -91,7 +91,7 @@ a { color: var(--blue-600); }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 16px;
+  padding: 0 14px;
   background: var(--surface);
   border-bottom: 1px solid var(--border);
 }
@@ -99,8 +99,13 @@ a { color: var(--blue-600); }
   display: flex;
   align-items: center;
   gap: 10px;
+  min-width: 0;
+  background: var(--white);
+  border-radius: 12px;
+  padding: 6px 10px;
+  box-shadow: var(--shadow-1);
 }
-.topbar__brand img { height: 28px; width: auto; display: block; }
+.topbar__brand img { height: 34px; width: auto; display: block; }
 .topbar__brand span { font-family: var(--font-display); font-weight: 700; font-size: 15px; }
 .topbar__actions { display: flex; gap: 8px; }
 .icon-btn {

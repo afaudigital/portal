@@ -2,6 +2,14 @@
 
 Todas as mudanças notáveis deste projeto são documentadas aqui.
 
+## [1.0.1] — 2026-07-24
+
+### Corrigido
+- Botão de lupa no topbar não tinha nenhuma ação ligada a ele. Agora abre uma tela de **Pesquisa** dedicada, com busca combinada em histórico + favoritos.
+- Leitura de QR Code por imagem falhava no iPhone/Safari mesmo com fotos nítidas (funcionava normalmente no Mac). Causa: o Safari/iOS tem um limite de área de canvas mais restritivo que Chrome, e fotos de câmeras modernas (12–48 MP) estouravam esse limite silenciosamente. Corrigido redimensionando a imagem para escalas seguras antes de decodificar, com múltiplas tentativas.
+- Logo do topbar e da tela "Sobre" aumentada e com fundo removido (transparência), ficando mais harmoniosa em ambos os temas.
+- Ícone do app (usado ao "Adicionar à Tela de Início" no iPhone) refeito a partir do símbolo circular da marca, com preenchimento maior no quadrado navy.
+
 ## [1.0.0] — 2026-07-24
 
 ### Adicionado
