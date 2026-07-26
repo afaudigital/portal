@@ -98,7 +98,7 @@
   /**
    * Recebe o texto bruto decodificado (de QR câmera, QR imagem, ou link
    * montado manualmente) e SEMPRE passa pela validação de domínio antes
-   * de exibir qualquer ação de "abrir".
+   * de exibir qualquer ação de "abrir"
    */
   function showResult(rawUrl, source) {
     const parsed = AfauUtils.parseSemobLink(rawUrl);
